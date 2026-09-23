@@ -7,7 +7,7 @@
  * When this callback is fired, it will toggle line 2 of the LCD text between
  * "I was pressed!" and nothing.
  */
-void on_center_button()
+/* void on_center_button()
 {
 	static bool pressed = false;
 	pressed = !pressed;
@@ -19,7 +19,7 @@ void on_center_button()
 	{
 		pros::lcd::clear_line(2);
 	}
-}
+} */
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -32,7 +32,7 @@ void initialize()
 	pros::lcd::initialize();
 	// pros::lcd::set_text(1, "Hello PROS User!");
 
-	pros::lcd::register_btn1_cb(on_center_button);
+	//pros::lcd::register_btn1_cb(on_center_button);
 }
 
 /**
@@ -79,7 +79,7 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol()
+/*void opcontrol()
 {
 	ProsPose pose_estimator; // defaults: VEX AI Vision (320x240, 74° HFOV, 18mm tags)
 	pros::AIVision aivision(1);
@@ -95,9 +95,54 @@ void opcontrol()
 			if (pros::AIVision::is_type(object, pros::AivisionDetectType::tag))
 			{
 				pros::lcd::print(i,"tag id %d", object.id);
+				//object.object.tag.x0;
 			}
+			i++;
 		}
-		pros::lcd::print(i+1,"Objects: %d", i+1);
+		if(i<7) {
+				for(int j=i; j<7; j++) {
+					//pros::lcd::clear_line(j);
+				}
+			}
+		//pros::lcd::print(i,"Objects: %d", i);
 		pros::delay(20); // Run for 20 ms then update
 	}
+}*/
+
+void opcontrol()
+{
+	ProsPose pose_estimator; // defaults: VEX AI Vision (320x240, 74° HFOV, 18mm tags)
+	pros::AIVision aivision(11);
+	aivision.reset();
+	aivision.enable_detection_types(pros::AivisionModeType::tags);
+	aivision.set_tag_family(pros::AivisionTagFamily::tag_21H7);
+
+	while (true)
+	{
+		auto objects = aivision.get_all_objects();
+
+		for (auto &object : objects)
+		{
+			// if (object.object.tag != VISION_OBJECT_ERR_SIG) {
+			double corners[4][2] = {
+				{object.object.tag.x0, object.object.tag.y0},
+				{object.object.tag.x1, object.object.tag.y1},
+				{object.object.tag.x2, object.object.tag.y2},
+				{object.object.tag.x3, object.object.tag.y3}};
+
+			ProsPoseResult result = pose_estimator.estimate(corners);
+
+			if (result.is_valid)
+			{
+				pros::lcd::print(0, "%f", result.z);
+				// result.x, result.y, result.z in meters
+				// result.yaw, result.pitch, result.roll in degrees
+			}
+		}
+		pros::lcd::print(1, "This is a test for AprilTag positioning.");
+		pros::lcd::print(2, "- TIGERBOTICS.");
+		pros::lcd::print(7, "..is it working?");
+		pros::delay(100);
+	}
+
 }

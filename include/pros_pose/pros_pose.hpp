@@ -57,7 +57,7 @@ public:
   //   yaw, pitch, roll  — Rotation in degrees (ZYX Euler angles).
   //
   ProsPose(double fx = 212.3, double fy = 195.82, double cx = 160.0,
-           double cy = 120.0, double tag_size = 0.018);
+           double cy = 120.0, double tag_size = 0.108);
 
   ProsPoseResult estimate(double corners[4][2]);
 
